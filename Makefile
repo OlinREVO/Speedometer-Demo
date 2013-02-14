@@ -10,7 +10,7 @@
 # TARGET: name of the output file
 TARGET = main
 # MCU: part number to build for
-MCU = atmega328p
+MCU = atmega16m1
 # SOURCES: list of input source sources
 SOURCES = main.c
 # OUTDIR: directory to use for output
