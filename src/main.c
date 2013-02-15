@@ -6,10 +6,11 @@
  * Olin REVO, 2013
  */
 
+#include <inttypes.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
-volatile unsigned char out = 0;
+volatile uint8_t out = 0;
 
 int main(void) {
     /* Set PD0 to input */
