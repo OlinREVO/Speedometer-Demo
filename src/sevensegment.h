@@ -23,5 +23,8 @@
 /* Converts one decimal digit to a pin mask */
 uint8_t ssDigit(uint8_t dec);
 
+/* Display a value as two digits across two output ports */
+void ssDisplay(int value, volatile uint8_t *port0, volatile uint8_t *port1);
+
 #endif
 
