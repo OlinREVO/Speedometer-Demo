@@ -9,6 +9,7 @@
 #include <inttypes.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include "sevensegment.h"
 
 volatile uint8_t out = 0;
 
