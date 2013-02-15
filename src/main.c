@@ -17,10 +17,10 @@
 #define F_IO 8000000
 
 volatile int i = 0;
-float dt = 0;
+volatile float dt = 0;
 float time = 0;
 float Times[SIZE];
-long velocity = 0;
+float velocity = 0;
 
 volatile uint8_t out = 0;
 
