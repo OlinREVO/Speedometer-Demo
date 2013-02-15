@@ -9,12 +9,15 @@
 #include <inttypes.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <math.h>
 #include "sevensegment.h"
 
-#define SIZE 5
-#define CIRCUM .3175 * 3.14
+#define SIZE 2
+#define CIRCUM .3175 * M_PI
 #define TIMESCALAR 1024
-#define F_IO 8000000
+#define F_IO 1000000
+/* m/s to mph */
+#define UNITSCALAR 2.23694
 
 volatile int i = 0;
 volatile float dt = 0;
@@ -22,11 +25,11 @@ float time = 0;
 float Times[SIZE];
 float velocity = 0;
 
-volatile uint8_t out = 0;
-
 int main(void) {
-    for (i = 0; i < SIZE; i++)
+    /* Initialize Times to all zeros */
+    for (i = 0; i < SIZE; i++) {
       Times[i] = 0;
+    }
     i = 0;
 
     /* Set PD0 to input */
@@ -36,34 +39,35 @@ int main(void) {
     /* Set PCINT2 to be triggered by PCINT16 (on PD0) */
     PCMSK2 |= _BV(PCINT16);
 
-    /* Set PB0 to output */
-    DDRB |= _BV(DDB0);
+    /* Set PORTB and PORTC, [0-6] to output */
+    DDRB |= ~(_BV(DDB7));
+    DDRC |= ~(_BV(DDC7));
 
-    /* Set Timer/Counter1 on with prescaler at clk_io/64 */
-    TCCR1B |= (_BV(CS11) | _BV(CS10));
+    /* Set Timer/Counter1 on with prescaler at clk_io/1024 */
+    TCCR1B |= (_BV(CS12) | _BV(CS10));
 
     /* All set up, start listening for interrupts */
     sei();
 
     /* Loop */
     while (-1) {
-        dt = Times[(i + SIZE -1)%SIZE] - Times[i];
-        velocity = (SIZE - 1.0)*TIMESCALAR*CIRCUM/(dt * F_IO);
-        /* If TC1 greater than half full, try to turn on PB0 */
-        if (TCNT1 & 0x1000) {
-            PORTB |= out & _BV(PORTB0);
-        }
-        /* Turn off PB0 */
-        else {
-            PORTB &= ~(_BV(PORTB0));
-        }
+        uint16_t test;
+        dt = (Times[i] + 0.0) * TIMESCALAR / F_IO;
+        velocity = (SIZE - 1.0)*CIRCUM/(dt ) * UNITSCALAR;
+        ssDisplay(lround(velocity), &PORTC, &PORTB);
     }
 }
 
 /* Service routine for the hall latch */
 ISR(PCINT2_vect) {
-    /* Toggle PB0 */
-    Times[i] = time;
-    out = ~out;
+    uint16_t timerValue;
+    
+    /* Grab value from TC1 and reset it */
+    timerValue = TCNT1;
+    TCNT1 = 0;
+    /* Save timerValue */
+    Times[i] = timerValue;
+    /* Increment i */
+    i = (i + 1) % SIZE;
 }
 
