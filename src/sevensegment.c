@@ -35,6 +35,10 @@ void ssDisplay(int value, volatile uint8_t *port0, volatile uint8_t *port1){
     uint8_t digit0;
     uint8_t digit1;
 
+    /* Cap value at 99 */
+    if (value > 99) {
+        value = 99;
+    }
     /* Get pinmask for the lower digit and cache it for later */
     digit0= ssDigit(value % 10);
     /* Move over one digit */
