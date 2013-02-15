@@ -32,7 +32,9 @@ uint8_t ssDigit(uint8_t dec) {
 }
 
 void ssDisplay(int value, volatile uint8_t *port0, volatile uint8_t *port1){
-    uint8_t digit0 = ssDigit(value % 10);
+    uint8_t digit0;
+
+    digit0= ssDigit(value % 10);
     value /= 10;
     *port1 = ssDigit(value % 10);
     *port0 = digit0;
