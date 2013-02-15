@@ -1,7 +1,7 @@
 /* Speedometer Demo
  * ================
  *
- * A simple test of the LED speed display and wheel speed sensor. 
+ * A simple test of the LED speed display and wheel speed sensor.
  *
  * Olin REVO, 2013
  */
@@ -11,9 +11,24 @@
 #include <avr/interrupt.h>
 #include "sevensegment.h"
 
+#define SIZE 5
+#define CIRCUM .3175 * 3.14
+#define TIMESCALAR 1024
+#define F_IO 8000000
+
+volatile int i = 0;
+float dt = 0;
+float time = 0;
+float Times[SIZE];
+long velocity = 0;
+
 volatile uint8_t out = 0;
 
 int main(void) {
+    for (i = 0; i < SIZE; i++)
+      Times[i] = 0;
+    i = 0;
+
     /* Set PD0 to input */
     DDRD &= ~(_BV(DDD0));
     /* Enable pin change interrupt 2 (PCINT2) */
@@ -32,6 +47,8 @@ int main(void) {
 
     /* Loop */
     while (-1) {
+        dt = Times[(i + SIZE -1)%SIZE] - Times[i];
+        velocity = (SIZE - 1.0)*TIMESCALAR*CIRCUM/(dt * F_IO);
         /* If TC1 greater than half full, try to turn on PB0 */
         if (TCNT1 & 0x1000) {
             PORTB |= out & _BV(PORTB0);
@@ -46,6 +63,7 @@ int main(void) {
 /* Service routine for the hall latch */
 ISR(PCINT2_vect) {
     /* Toggle PB0 */
+    Times[i] = time;
     out = ~out;
 }
 
