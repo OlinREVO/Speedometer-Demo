@@ -11,7 +11,7 @@
 
 int main(void) {
     /* Set PD0 to input */
-    DDRD &= ~_BV(DDD0);
+    DDRD &= ~(_BV(DDD0));
     /* Enable pin change interrupt 2 (PCINT2) */
     PCICR |= _BV(PCIE2);
     /* Set PCINT2 to be triggered by PCINT16 on PD0 */
