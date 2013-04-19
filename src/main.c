@@ -6,13 +6,6 @@
  * Olin REVO, 2013
  */
 
-#include <inttypes.h>
-#include <avr/io.h>
-#include <avr/interrupt.h>
-#include <math.h>
-#include "sevensegment.h"
-#include <util/delay.h>
-
 #define SIZE 2
 #define CIRCUM .3175 * M_PI
 #define TIMESCALAR 1024
@@ -20,6 +13,15 @@
 #define F_CPU 1000000
 /* m/s to mph */
 #define UNITSCALAR 2.23694
+
+
+#include <inttypes.h>
+#include <avr/io.h>
+#include <avr/interrupt.h>
+#include <math.h>
+#include "sevensegment.h"
+#include <util/delay.h>
+
 
 volatile int i = 0;
 volatile float dt = 0;
@@ -53,16 +55,16 @@ int main(void) {
     //sei();
     int val = 0;
     int ledval = val * 2/5;
-
     /* Loop */
-    while (-1) {
+    for(;;) {
         //dt = (Times[i] + 0.0) * TIMESCALAR / F_IO;
         //velocity = (SIZE - 1.0) * CIRCUM/ dt * UNITSCALAR;
         //ssDisplay(lround(velocity), &PORTC, &PORTB);
         ssDisplay(val, &PORTC, &PORTB);
-        PORTD = ~(0xff >> ledval);
-        //_delay_ms(500);
-        //val = (val + 1) % 22;
+        //PORTD = ~(0xff >> ledval);
+        PORTD = val;
+        _delay_ms(100);
+        val = (val + 1) % 255;
         //ledval = val * 2/5;
     }
 }
@@ -70,7 +72,7 @@ int main(void) {
 /* Service routine for the hall latch */
 ISR(PCINT2_vect) {
     uint16_t timerValue;
-    
+
     /* Grab value from TC1 and reset it */
     timerValue = TCNT1;
     TCNT1 = 0;
