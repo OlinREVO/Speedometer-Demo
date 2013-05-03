@@ -32,12 +32,12 @@ int main(void) {
     }
     i = 0;
 
-    /* Set PD0 to input */
-    DDRD &= ~(_BV(DDD0));
-    /* Enable pin change interrupt 2 (PCINT2) */
-    PCICR |= _BV(PCIE2);
-    /* Set PCINT2 to be triggered by PCINT16 (on PD0) */
-    PCMSK2 |= _BV(PCINT16);
+    /* Set PC7 to input */
+    DDRD &= ~(_BV(DDC7));
+    /* Enable pin change interrupt 1(PCINT2) */
+    PCICR |= _BV(PCIE1);
+    /* Set PCINT2 to be triggered by PCINT15 (on PC7) */
+    PCMSK1 |= _BV(PCINT15);
 
     /* Set PORTB and PORTC, [0-6] to output */
     DDRB |= ~(_BV(DDB7));
@@ -59,7 +59,7 @@ int main(void) {
 }
 
 /* Service routine for the hall latch */
-ISR(PCINT2_vect) {
+ISR(PCINT1_vect) {
     uint16_t timerValue;
     
     /* Grab value from TC1 and reset it */

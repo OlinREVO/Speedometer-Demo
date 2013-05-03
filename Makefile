@@ -16,7 +16,7 @@ SOURCES = main.c sevensegment.c
 # OUTDIR: directory to use for output
 OUTDIR = build
 # PROGRAMMER: name of programmer
-PROGRAMMER = dragon_isp
+PROGRAMMER = avrispmkii
 # PORT: location of programmer
 PORT = usb
 # define flags
