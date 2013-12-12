@@ -5,6 +5,7 @@
  */
 
 #include <inttypes.h>
+#include <avr/io.h>
 
 uint8_t ssDigit(uint8_t dec) {
     switch (dec) {
@@ -31,7 +32,7 @@ uint8_t ssDigit(uint8_t dec) {
     }
 }
 
-void ssDisplay(int value, volatile uint8_t *port0, volatile uint8_t *port1){
+void ssDisplay(int value){
     uint8_t digit0;
     uint8_t digit1;
 
@@ -50,7 +51,124 @@ void ssDisplay(int value, volatile uint8_t *port0, volatile uint8_t *port1){
     else {
         digit1 = 0x00;
     }
-    *port0 = digit0;
-    *port1 = digit1;
+    port0(digit0);
+    port1(digit1);
+}
+
+void port0(uint8_t digit){
+
+    if (digit&(1<<0)){
+        PORTC |=_BV(PC0)|1;
+    }
+
+    else{
+        PORTC &= _BV(PC0)&0;
+    }
+
+    if (digit&(1<<1)){
+        PORTC |=_BV(PC1)|1;
+    }
+    else{
+        PORTC &=_BV(PC1)&0;
+    }
+
+    if (digit&(1<<2)){
+        PORTC |=_BV(PC4)|1;
+    }
+    else{
+        PORTC &=_BV(PC4)&0;
+    }
+
+    if (digit&(1<<3)){
+        PORTC |=_BV(PC5)|1;
+    }
+    else{
+        PORTC &=_BV(PC5)&0;
+    }
+
+    if (digit&(1<<4)){  //bottom left,d2
+        PORTC |=_BV(PC6)|1;
+    }
+    else{
+        PORTC &=_BV(PC6)&0;
+    }
+
+    if (digit&(1<<5)){  //top left, d2
+        PORTC |=_BV(PC7)|1;
+    }
+    else{
+        PORTC &=_BV(PC7)&0;
+    }
+
+    if (digit&(1<<6)){
+        PORTB |=_BV(PB7)|1;
+    }
+    else{
+        PORTB &=_BV(PB7)&0;
+    }
+
+
+
+    /*PORTC |= (_BV(PC0)&(digit))
+|(_BV(PC1)&digit)|(_BV(PC4)&digit)|(_BV(PC5)&digit)|(_BV(PC6)&digit)|(_BV(PC7)&digit);
+    PORTC &= ((_BV(PC0)&&(~digit))|(_BV(PC1)&&(~digit))|(_BV(PC4)&&(~digit))|(_BV(PC5)&&(~digit))|(_BV(PC6)&&(~digit))|(_BV(PC7)&&(~digit)));
+    PORTB |= _BV(PB7)&&digit;
+    PORTB &= ~(_BV(PB7)&&(~digit));*/
+}
+
+void port1(uint8_t digit){
+
+    if (digit&(1<<0)){
+        PORTB |=_BV(PB0)|1;
+    }
+
+    else{
+        PORTB &= _BV(PB0)&0;
+    }
+
+    if (digit&(1<<1)){
+        PORTB |=_BV(PB1)|1;
+    }
+    else{
+        PORTB &=_BV(PB1)&0;
+    }
+
+    if (digit&(1<<2)){
+        PORTB |=_BV(PB2)|1;
+    }
+    else{
+        PORTB &=_BV(PB2)&0;
+    }
+
+    if (digit&(1<<3)){
+        PORTB |=_BV(PB3)|1;
+    }
+    else{
+        PORTB &=_BV(PB3)&0;
+    }
+
+    if (digit&(1<<4)){
+        PORTB |=_BV(PB4)|1;
+    }
+    else{
+        PORTB &=_BV(PB4)&0;
+    }
+
+    if (digit&(1<<5)){
+        PORTB |=_BV(PB5)|1;
+    }
+    else{
+        PORTB &=_BV(PB5)&0;
+    }
+
+    if (digit&(1<<6)){
+        PORTB |=_BV(PB6)|1;
+    }
+    else{
+        PORTB &=_BV(PB6)&0;
+    }
+
+    /*PORTB |= (_BV(PB0)&&(digit))|(_BV(PB1)&&(digit))|(_BV(PB2)&&(digit))|(_BV(PB3)&&(digit))|(_BV(PB4)&&(digit))|(_BV(PB5)&&(digit))|(_BV(PB6)&&(digit))|(_BV(PB7)&&(digit));
+    PORTB &= ~(_BV(PB0)&&(~digit))|(_BV(PB1)&&(~digit))|(_BV(PB2)&&(~digit))|(_BV(PB3)&&(~digit))|(_BV(PB4)&&(~digit))|(_BV(PB5)&&(~digit))|(_BV(PB6)&&(~digit))|(_BV(PB7)&&(~digit));*/
 }
 
