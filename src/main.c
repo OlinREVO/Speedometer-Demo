@@ -41,9 +41,9 @@ int main(void) {
     //PCMSK1 |= _BV(PCINT15);
 
     /* Set PORTB and PORTC, [0-6] to output */
-    DDRB |= ~(_BV(DDC6));
-    DDRC |= ~(_BV(DDC6));
-    DDRD |= ~(_BV(DDC6));
+    DDRB |= 0xFF;
+    DDRC |= ~(_BV(DDC3));
+    DDRD |= 0xFF;
 
     /* Set Timer/Counter1 on with prescaler at clk_io/1024 */
     TCCR1B |= (_BV(CS12) | _BV(CS10));
