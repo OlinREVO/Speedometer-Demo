@@ -8,7 +8,7 @@
 # user configuration:
 #######################################
 # TARGET: name of the output file
-TARGET = main
+TARGET = $(FILE)
 # MCU: part number to build for
 MCU = atmega16m1
 # SOURCES: list of input source sources
