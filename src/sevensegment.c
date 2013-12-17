@@ -7,6 +7,7 @@
 #include <inttypes.h>
 #include <avr/io.h>
 
+
 uint8_t ssDigit(uint8_t dec) {
     switch (dec) {
     case 9:
@@ -34,13 +35,13 @@ uint8_t ssDigit(uint8_t dec) {
 
 
 
-void port(uint8_t digit, uint8_t portarray[]){
+void port(uint8_t digit, uint8_t * pinarray[], uint8_t * portarray[]){
     int i;
     for (i = 0; i < 7; i++){
         if (digit&(1<<i)){
-            PORTC |= _BV(portarray[i]);
+            portarray[i] |= _BV(pinarray[i]);
         } else {
-            PORTC &= _BV(portarray[i])|1;
+            portarray[i] &= ~_BV(pinarray[i]);
         }
     }
 }
@@ -49,24 +50,28 @@ void ssDisplay(int value){
     uint8_t digit0;
     uint8_t digit1;
     
-    uint8_t port0array[7] = {PC0, PC1, PC4, PC5, PC6, PC7, PB7};
-    uint8_t port1array[7] = {PB0, PB1, PB2, PB3, PB4, PB5, PB6};
+    uint8_t * pin0array[7] = {PC0, PC1, PC4, PC5, PC6, PC7, PB7};
+    uint8_t * port0array[7] = {PORTC, PORTC, PORTC, PORTC, PORTC, PORTC, PORTB};
+
+    uint8_t * pin1array[7] = {PB0, PB1, PB2, PB3, PB4, PB5, PB6};
+    uint8_t * port1array[7] = {PORTB, PORTB, PORTB, PORTB, PORTB, PORTB, PORTB};
 
     /* Cap value at 99 */
     if (value > 99) {
         value = 99;
     }
-    /* Get pinmask for the lower digit and cache it for later */
+    /* Get pin ask for the lower digit and cache it for later */
     digit0= ssDigit(value % 10);
     /* Move over one digit */
     value = (value / 10) % 10;
-    /* Get pinmask for upper digit, blank if 0 */
+    /* Get pin mask for upper digit, blank if 0 */
     if (value > 0) {
         digit1 = ssDigit(value);
     }
     else {
         digit1 = 0x00;
     }
-    port(digit0, port0array);
-    port(digit1, port1array);
+    port(digit0, pin0array, port0array);
+    port(digit1, pin1array, port1array);
+
 }
