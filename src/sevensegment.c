@@ -35,13 +35,13 @@ uint8_t ssDigit(uint8_t dec) {
 
 
 
-void port(uint8_t digit, uint8_t * pinarray[], uint8_t * portarray[]){
+void port(uint8_t digit, volatile uint8_t pinarray[], volatile uint8_t* portarray[]){
     int i;
     for (i = 0; i < 7; i++){
         if (digit&(1<<i)){
-            portarray[i] |= _BV(pinarray[i]);
+            *portarray[i] |= _BV(pinarray[i]);
         } else {
-            portarray[i] &= ~_BV(pinarray[i]);
+            *portarray[i] &= ~_BV(pinarray[i]);
         }
     }
 }
@@ -50,11 +50,11 @@ void ssDisplay(int value){
     uint8_t digit0;
     uint8_t digit1;
     
-    uint8_t * pin0array[7] = {PC0, PC1, PC4, PC5, PC6, PC7, PB7};
-    uint8_t * port0array[7] = {PORTC, PORTC, PORTC, PORTC, PORTC, PORTC, PORTB};
+    volatile uint8_t pin0array[7] = {PC0, PC1, PC4, PC5, PC6, PC7, PB7};
+    volatile uint8_t* port0array[7] = {&PORTC, &PORTC, &PORTC, &PORTC, &PORTC, &PORTC, &PORTB};
 
-    uint8_t * pin1array[7] = {PB0, PB1, PB2, PB3, PB4, PB5, PB6};
-    uint8_t * port1array[7] = {PORTB, PORTB, PORTB, PORTB, PORTB, PORTB, PORTB};
+    volatile uint8_t pin1array[7] = {PB0, PB1, PB2, PB3, PB4, PB5, PB6};
+    volatile uint8_t* port1array[7] = {&PORTB, &PORTB, &PORTB, &PORTB, &PORTB, &PORTB, &PORTB};
 
     /* Cap value at 99 */
     if (value > 99) {
@@ -73,5 +73,4 @@ void ssDisplay(int value){
     }
     port(digit0, pin0array, port0array);
     port(digit1, pin1array, port1array);
-
 }
