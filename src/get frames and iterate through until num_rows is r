@@ -1,2 +1,0 @@
-get frames and iterate through until num_rows is reached
-send row char* pixels as packet
