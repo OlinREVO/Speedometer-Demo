@@ -19,6 +19,7 @@
 #define F_IO 1000000
 /* m/s to mph */
 #define UNITSCALAR 2.23694
+#define DT TIMESCALAR/F_IO
 
 volatile int i = 0;
 volatile float dt = 0;
@@ -26,26 +27,41 @@ float time = 0;
 float Times[SIZE];
 float velocity = 0;
 
+int shunt_res = 
+
+int NODE_HOME = NODE_halleffect;
+int NODE_TARGET_1 = NODE_watchdog;
+int NODE_TARGET_2 = NODE_speedometer;
+
 int main(void) {
-    /* Initialize Times to all zeros *///changed to 88 for testing.  Put this back later!
-    /*for (i = 0; i < SIZE; i++) {
-      Times[i] = 88;
+
+
+    /* Initialize Times to all zeros 
+    for (i = 0; i < SIZE; i++) {
+      Times[i] = 0;
     }
-    i = 0;*/
+    i = 0;
 
     /* Set PC3 to input */
     DDRD &= ~(_BV(DDC3));
     /* Enable pin change interrupt 1(PCINT2) */
-    //PCICR |= _BV(PCIE1);
+    PCICR |= _BV(PCIE1);
     /* Set PCImake flashNT2 to be triggered by PCINT15 (on PC7) */
-    //PCMSK1 |= _BV(PCINT15);
+    PCMSK1 |= _BV(PCINT15);
+
+    //Turn on ADC
+    ADCSRA |= _BV(ADEN) 
+    //Enable internal reference voltage
+    ADCSRB &= _BV(AREFEN);
+    //Set internal reference voltage as AVcc
+    ADMUX |= _BV(REFS0);
 
     /* Set PORTB and PORTC, [0-6] to output */
     DDRB |= 0xFF;
     DDRC |= ~(_BV(DDC3));
     DDRD |= 0xFF;
 
-    /* Set Timer/Counter1 on with prescaler at clk_io/1024 */
+    /* Set Timer/Counter1 on with prescaler at clk_io/1024 *///for Hall latch
     TCCR1B |= (_BV(CS12) | _BV(CS10));
 
     /* All set up, start listening for interrupts */
@@ -54,9 +70,20 @@ int main(void) {
     /* Loop */
     while (-1) {
         uint16_t test;
-        dt = (Times[i] + 0.0) * TIMESCALAR / F_IO;
-        velocity = (SIZE - 1.0)*CIRCUM/(dt ) * UNITSCALAR;
-        ssDisplay(lround(88));
+
+        dt = (Times[i] + 0.0) * DT;
+        velocity = (SIZE - 1.0)*CIRCUM/(dt) * UNITSCALAR;
+        uint8_t vel = velocity;
+
+        sendCANmsg(NODE_TARGET_2, MSG_speed,vel,1)
+
+        ADCSRA |=  _BV(ADSC);
+            while(bit_is_set(ADCSRA, ADSC));
+
+            //ADC is a macro to combine ADCL and ADCH
+            uint16_t voltage = ADC;
+
+        sendCANmsg(NODE_TARGET_1,MSG_data_other, voltage, 2);
     }
 }
 
@@ -74,7 +101,5 @@ ISR(PCINT1_vect) {
 }
 
 void handleCANmsg(uint8_t destID, uint8_t msgID, uint8_t* msg, uint8_t msgLen){
-    uint8_t* val = msg;
-    velocity = (int)val;
-
 }
+

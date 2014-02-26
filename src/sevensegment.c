@@ -6,6 +6,7 @@
 
 #include <inttypes.h>
 #include <avr/io.h>
+#include <api.h>
 
 
 uint8_t ssDigit(uint8_t dec) {
@@ -60,7 +61,7 @@ void ssDisplay(int value){
     if (value > 99) {
         value = 99;
     }
-    /* Get pin ask for the lower digit and cache it for later */
+    /* Get pin mask for the lower digit and cache it for later */
     digit0= ssDigit(value % 10);
     /* Move over one digit */
     value = (value / 10) % 10;
