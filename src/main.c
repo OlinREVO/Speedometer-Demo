@@ -33,14 +33,37 @@ int NODE_HOME = NODE_halleffect;
 int NODE_TARGET_1 = NODE_watchdog;
 int NODE_TARGET_2 = NODE_speedometer;
 
+uint8_t vel[1];
+uint8_t v[2];
+
+void sendVelocity(){
+    dt = (Times[i] + 0.0) * DT;
+    velocity = (SIZE - 1.0)*CIRCUM/(dt) * UNITSCALAR;
+    vel[0] = velocity;
+
+    sendCANmsg(NODE_TARGET_2, MSG_speed,vel,1);
+}
+
+void stateOfCharge(){
+    //Reset the ADMUX channel select bits (lowest 5)
+    ADMUX &= ~(0x1F);
+    //the low 4 bits of ADMUX select the ADC channel
+    ADMUX |= 0x02;
+    //Wait for ADC reading
+    ADCSRA |=  _BV(ADSC);
+    while(bit_is_set(ADCSRA, ADSC));
+
+    //ADC is a macro to combine ADCL and ADCH
+    v[0]= ADC;
+    sendCANmsg(NODE_TARGET_1,MSG_data_other, v, 2);
+}
+
 int main(void) {
-
-
-    /* Initialize Times to all zeros 
+    //Initialize Times to all zeros 
     for (i = 0; i < SIZE; i++) {
       Times[i] = 0;
     }
-    i = 0;*/
+    i = 0; //Reset Index Counter
 
     /* Set PC3 to input */
     DDRD &= ~(_BV(DDC3));
@@ -57,9 +80,15 @@ int main(void) {
     ADMUX |= _BV(REFS0);
 
     /* Set PORTB and PORTC, [0-6] to output */
+    /*
     DDRB |= 0xFF;
     DDRC |= ~(_BV(DDC3));
     DDRD |= 0xFF;
+    */
+
+    DDRB &= ~(_BV(PB0)); //Interrupt pin for hall-latch
+    DDRB &= ~(_BV(PB5)); //State of Charge Input
+    DDRB &= ~(_BV(PB4)); //State of Charge Input
 
     /* Set Timer/Counter1 on with prescaler at clk_io/1024 *///for Hall latch
     TCCR1B |= (_BV(CS12) | _BV(CS10));
@@ -68,34 +97,20 @@ int main(void) {
     sei();
 
     /* Loop */
-    while (-1) {
-
-        dt = (Times[i] + 0.0) * DT;
-        velocity = (SIZE - 1.0)*CIRCUM/(dt) * UNITSCALAR;
-        uint8_t vel[1];
-        vel[0] = velocity;
-
-        sendCANmsg(NODE_TARGET_2, MSG_speed,vel,1);
-
-        ADCSRA |=  _BV(ADSC);
-            while(bit_is_set(ADCSRA, ADSC));
-
-            //ADC is a macro to combine ADCL and ADCH
-            uint8_t voltage = ADC;
-            uint8_t v[2];
-            v[0]= voltage;
-
-        sendCANmsg(NODE_TARGET_1,MSG_data_other, v, 2);
+    while (1) {
+        sendVelocity();
+        stateOfCharge();
     }
 }
 
 /* Service routine for the hall latch */
-ISR(PCINT1_vect) {
+ISR(PCINT0_vect) {
     uint16_t timerValue;
+    PORTB |= _BV(PB4); //Check if hall-latch is registering - LED
     
     /* Grab value from TC1 and reset it */
-    timerValue = TCNT1;
-    TCNT1 = 0;
+    timerValue = TCNT0;
+    TCNT0 = 0;
     /* Save timerValue */
     Times[i] = timerValue;
     /* Increment i */
