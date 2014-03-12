@@ -31,19 +31,11 @@ int main(void){
     	}
 
     	ssDisplay(velocity);
-        runLED(velocity);
     }
 }
 
 void handleCANmsg(uint8_t destID, uint8_t msgID, uint8_t* msg, uint8_t msgLen){
     uint8_t* val = msg;
     velocity = (int)val;
-
-}
-
-void runLED(v){
-
-    for 
-
 
 }

@@ -27,7 +27,7 @@ float time = 0;
 float Times[SIZE];
 float velocity = 0;
 
-int shunt_res = 
+int shunt_res= 5000;
 
 int NODE_HOME = NODE_halleffect;
 int NODE_TARGET_1 = NODE_watchdog;
@@ -40,7 +40,7 @@ int main(void) {
     for (i = 0; i < SIZE; i++) {
       Times[i] = 0;
     }
-    i = 0;
+    i = 0;*/
 
     /* Set PC3 to input */
     DDRD &= ~(_BV(DDC3));
@@ -50,7 +50,7 @@ int main(void) {
     PCMSK1 |= _BV(PCINT15);
 
     //Turn on ADC
-    ADCSRA |= _BV(ADEN) 
+    ADCSRA |= _BV(ADEN);
     //Enable internal reference voltage
     ADCSRB &= _BV(AREFEN);
     //Set internal reference voltage as AVcc
@@ -69,21 +69,23 @@ int main(void) {
 
     /* Loop */
     while (-1) {
-        uint16_t test;
 
         dt = (Times[i] + 0.0) * DT;
         velocity = (SIZE - 1.0)*CIRCUM/(dt) * UNITSCALAR;
-        uint8_t vel = velocity;
+        uint8_t vel[1];
+        vel[0] = velocity;
 
-        sendCANmsg(NODE_TARGET_2, MSG_speed,vel,1)
+        sendCANmsg(NODE_TARGET_2, MSG_speed,vel,1);
 
         ADCSRA |=  _BV(ADSC);
             while(bit_is_set(ADCSRA, ADSC));
 
             //ADC is a macro to combine ADCL and ADCH
-            uint16_t voltage = ADC;
+            uint8_t voltage = ADC;
+            uint8_t v[2];
+            v[0]= voltage;
 
-        sendCANmsg(NODE_TARGET_1,MSG_data_other, voltage, 2);
+        sendCANmsg(NODE_TARGET_1,MSG_data_other, v, 2);
     }
 }
 
