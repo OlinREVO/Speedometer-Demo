@@ -35,7 +35,7 @@ int NODE_TARGET_2 = NODE_speedometer;
 
 int main(void) {
 
-
+    initCan(NODE_HOME);
     /* Initialize Times to all zeros 
     for (i = 0; i < SIZE; i++) {
       Times[i] = 0;
@@ -43,7 +43,7 @@ int main(void) {
     i = 0;*/
 
     /* Set PC3 to input */
-    DDRD &= ~(_BV(DDC3));
+    DDRC &= ~(_BV(DDC3));
     /* Enable pin change interrupt 1(PCINT2) */
     PCICR |= _BV(PCIE1);
     /* Set PCImake flashNT2 to be triggered by PCINT15 (on PC7) */
@@ -56,26 +56,33 @@ int main(void) {
     //Set internal reference voltage as AVcc
     ADMUX |= _BV(REFS0);
 
-    /* Set PORTB and PORTC, [0-6] to output */
+    /* Set PORTB and PORTD to output */
     DDRB |= 0xFF;
-    DDRC |= ~(_BV(DDC3));
+    DDRC |= 0xFF;
     DDRD |= 0xFF;
+    DDRD &= ~(_BV(DDC3));
+    DDRC &= ~(_BV(DDC7));
 
     /* Set Timer/Counter1 on with prescaler at clk_io/1024 *///for Hall latch
     TCCR1B |= (_BV(CS12) | _BV(CS10));
 
+    initCan(NODE_HOME);
+
     /* All set up, start listening for interrupts */
     sei();
 
+    sendCANmsg(NODE_speedometer,MSG_speed,16,1)
+
+
     /* Loop */
-    while (-1) {
+    while (1) {
 
         dt = (Times[i] + 0.0) * DT;
         velocity = (SIZE - 1.0)*CIRCUM/(dt) * UNITSCALAR;
         uint8_t vel[1];
         vel[0] = velocity;
 
-        sendCANmsg(NODE_TARGET_2, MSG_speed,vel,1);
+        sendCANmsg(NODE_TARGET_2, MSG_speed,32,1);
 
         ADCSRA |=  _BV(ADSC);
             while(bit_is_set(ADCSRA, ADSC));
