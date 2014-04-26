@@ -22,13 +22,13 @@ uint8_t ssDigit(uint8_t dec) {
     case 5:
         return 0b01101101;
     case 4:
-        return 0b01100110;
+        return 0b01001011;
     case 3:
-        return 0b01001111;
+        return 0b01100111;
     case 2:
-        return 0b01011011;
+        return 0b01110110;
     case 1:
-        return 0b00000110;
+        return 0b00000011;
     default:
         return 0b00111111;
     }
@@ -50,11 +50,13 @@ void port(uint8_t digit, volatile uint8_t pinarray[], volatile uint8_t* portarra
 void ssDisplay(int value){
     uint8_t digit0;
     uint8_t digit1;
+
+    //OK list: PB5,PB4,PC0,PC6
     
-    volatile uint8_t pin0array[7] = {PC0, PC1, PC4, PC5, PC6, PC7, PB7};
+    volatile uint8_t pin0array[7] = {PC4, PC7, PC1, PC0, PC6, PC5, PB2};
     volatile uint8_t* port0array[7] = {&PORTC, &PORTC, &PORTC, &PORTC, &PORTC, &PORTC, &PORTB};
 
-    volatile uint8_t pin1array[7] = {PB0, PB1, PB2, PB3, PB4, PB5, PB6};
+    volatile uint8_t pin1array[7] = {PB7, PB1, PB0, PB5, PB4, PB3, PB6};
     volatile uint8_t* port1array[7] = {&PORTB, &PORTB, &PORTB, &PORTB, &PORTB, &PORTB, &PORTB};
 
     /* Cap value at 99 */

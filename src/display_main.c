@@ -15,7 +15,7 @@
 
 int NODE_HOME = NODE_speedometer;
 
-int velocity = 55;
+int velocity = 0;
 
 int main(void){
 
@@ -28,18 +28,30 @@ int main(void){
 
     DDRB |= 0xFF;
 
+    DDRD |= _BV(PD0);
+    DDRD |= _BV(PD1);
+    DDRD |= _BV(PD2);
+    DDRD |= _BV(PD3);
+    DDRD |= _BV(PD4);
+    DDRD |= _BV(PD5);
+    DDRD |= _BV(PD6);
+    DDRD |= _BV(PD7);
+
 	initCAN(NODE_HOME);
 
     while(1){//just keep displaying the current velocity
-    	if(velocity >80){
-    		velocity = 80;
-    	}
+    	//if(velocity >80){
+    	   //velocity = 80;
+    	//}
 
-    	ssDisplay(velocity);
+        //High is |=~_BV...
+        //Low is &=
+        //PORTC |= _BV(PC1);
+        ssDisplay(velocity);
+ 
     }
 }
 
 void handleCANmsg(uint8_t destID, uint8_t msgID, uint8_t* msg, uint8_t msgLen){
-    uint8_t* val = msg;
-    velocity = 10;
+    velocity = msg[0];
 }
