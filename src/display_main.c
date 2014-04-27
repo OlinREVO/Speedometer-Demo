@@ -8,6 +8,7 @@
 
 #include <inttypes.h>
 #include <avr/io.h>
+#include <util/delay.h>
 #include <avr/interrupt.h>
 #include <math.h>
 #include "sevensegment.h"
@@ -38,20 +39,24 @@ int main(void){
     DDRD |= _BV(PD7);
 
 	initCAN(NODE_HOME);
+    initUART();
 
     while(1){//just keep displaying the current velocity
     	//if(velocity >80){
     	   //velocity = 80;
     	//}
-
-        //High is |=~_BV...
+        /*UART_putString("HELLO\n");*/
+        //High is |=~_BV..\.
         //Low is &=
         //PORTC |= _BV(PC1);
+
         ssDisplay(velocity);
  
     }
 }
 
-void handleCANmsg(uint8_t destID, uint8_t msgID, uint8_t* msg, uint8_t msgLen){
-    velocity = msg[0];
+void handleCANmsg(uint8_t destID, uint8_t msgID, char* msg, uint8_t msgLen){
+    sscanf(msg, "%d", &velocity);
+    UART_putString("Hi\n");
+    UART_putString(msg);
 }

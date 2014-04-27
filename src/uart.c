@@ -1,3 +1,4 @@
+
 #include "uart.h"
 
 // define pointers for the circular buffer
@@ -70,22 +71,6 @@ int UART_transmit() {
     }
     return(0);
 }
-char * toArray(int number)
-   {
-       int n = log10(number) + 1;
-       int i;
-     char *numberArray = calloc(n, sizeof(char));
-       for ( i = 0; i < n; ++i, number /= 10 )
-       {
-           numberArray[i] = number % 10;
-       }
-       return numberArray;
-   }
-   
-int UART_putInteger(int number){
-   UART_putString(toArray(number));
-   return(0);
- }
  
 int UART_putString(char s[]) {
     int len = strlen(s);

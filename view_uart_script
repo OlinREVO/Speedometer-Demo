@@ -1,0 +1,2 @@
+stty -F /dev/ttyUSB0 2400
+cat /dev/ttyUSB0

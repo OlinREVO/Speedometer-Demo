@@ -87,7 +87,7 @@ int initCAN(uint8_t nodeID) {
 void readMsg(void) {
     CANPAGE &= ~(_BV(AINC) | _BV(INDX2) | _BV(INDX1) | _BV(INDX0)); // set data page 0
     uint8_t msgLength = (CANCDMOB & 0x0F); // last 4 bits are the DLC (0b1111)
-    uint8_t receivedMsg[msgLength];
+    char receivedMsg[msgLength];
 
     // read the data into a local memory block
     int i;
@@ -108,7 +108,7 @@ void readMsg(void) {
 }
 
 // Sample call: sendCANmsg(NODE_watchdog,MSG_critical,data,dataLen);
-int sendCANmsg(uint8_t destID, uint8_t msgID, uint8_t msg[], uint8_t msgLength) {
+int sendCANmsg(uint8_t destID, uint8_t msgID, char msg[], uint8_t msgLength) {
     // use MOb 0 for sending and auto-increment bits in CAN page MOb register
     CANPAGE = ( _BV(AINC));
 

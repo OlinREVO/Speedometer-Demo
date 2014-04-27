@@ -18,7 +18,7 @@
 
 
 #define maxDataLength 8
-#define SIZE 2
+#define SIZE 5
 #define CIRCUM .3175 * M_PI
 #define TIMESCALAR 1024.0
 #define F_IO 1000000
@@ -30,7 +30,7 @@ volatile int i = 0;
 volatile float dt = 1;
 float time = 0;
 float Times[SIZE];
-float velocity = 0;
+float velocity = 10;
 
 int shunt_res= 5000;
 
@@ -40,16 +40,17 @@ int NODE_TARGET_2 = NODE_speedometer;
 
 /* Service routine for the hall latch */
 ISR(INT1_vect) {
-    uint16_t timerValue;
-    
+    UART_putString("INTERRUPT\n");
     /* Grab value from TC1 and reset it */
-    timerValue = TCNT1;
-    TCNT1 = 0;
 
-    /* Save timerValue */
-    Times[i] = timerValue;
-    /* Increment i */
-    i = (i + 1) % SIZE;
+        int size = sizeof(uint8_t)/sizeof(char);
+        char output[size];
+        sprintf(output,"%d",TCNT1);
+        UART_putString(output);
+
+    dt = TCNT1;
+    velocity = velocity + TIMESCALAR*CIRCUM/(dt * F_IO)/2.0;
+    TCNT1 = 0;
 }
 
 
@@ -60,12 +61,8 @@ int main(void) {
       Times[i] = 0;
     }
     i = 0;
-
-    /* Set PB2 to input */
-    DDRB &= ~_BV(PB2);
-
  
-     /*Enable pin change interrupt 1(PCINT2) */
+     /*Enable pin change interrupt 1(PCINT2) 
     /*PCICR |= _BV(PCIE0);*/
 
      /*Set PCImake flashNT2 to be triggered by PCINT15 (on PC7) */
@@ -83,23 +80,25 @@ int main(void) {
 
     initCAN(NODE_HOME);
     sei(); // enable global interrupts  
-    EICRA = _BV(ISC01);
-    EIMSK = _BV(INT1);
+    EICRA |= _BV(ISC10);
+    EIMSK |= _BV(INT1);
     /* All set up, start listening for interrupts */
 
     initUART();
     /* Loop */
     while (1) {
-        dt = (Times[i] + 0.0) * TIMESCALAR/F_IO;
-        velocity = (SIZE - 1.0)*CIRCUM/(dt) * UNITSCALAR;
-        uint8_t vel[1];
-        vel[0] = (uint8_t)(velocity);
         UART_putString("Hello\n");
-        UART_putInteger(vel[0]);
-        //vel[0] = (uint8_t)0;
+        _delay_ms(100);
+    
+        int num = 2;
+        int size = sizeof(int)/sizeof(char);
+        char output[size];
+        sprintf(output,"%d",num);
+        UART_putString(output);
 
 
-        sendCANmsg(NODE_TARGET_2, MSG_speed,vel,1);
+
+        sendCANmsg(NODE_TARGET_2, MSG_speed,output,size+1);
 
         /*ADCSRA |=  _BV(ADSC);
             while(bit_is_set(ADCSRA, ADSC));
@@ -114,6 +113,6 @@ int main(void) {
 }
 
 
-void handleCANmsg(uint8_t destID, uint8_t msgID, uint8_t* msg, uint8_t msgLen){
+void handleCANmsg(uint8_t destID, uint8_t msgID, char* msg, uint8_t msgLen){
 }
 
