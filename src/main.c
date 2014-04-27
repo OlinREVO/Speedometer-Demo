@@ -12,6 +12,7 @@
 #include <inttypes.h>
 #include <avr/interrupt.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "api.h"
 #include "uart.h"
@@ -49,8 +50,10 @@ ISR(INT1_vect) {
         UART_putString(output);
 
     dt = TCNT1;
-    velocity = velocity + TIMESCALAR*CIRCUM/(dt * F_IO)/2.0;
     TCNT1 = 0;
+
+    //velocity = velocity + TIMESCALAR*CIRCUM/(dt * F_IO)/2.0;
+    time = dt*TIMESCALAR/F_IO;
 }
 
 
@@ -89,13 +92,15 @@ int main(void) {
     while (1) {
         UART_putString("Hello\n");
         _delay_ms(100);
+
+        int v = (int)(CIRCUM/time);
     
+        //int num = round(CIRCUM/dt);
         int num = 2;
         int size = sizeof(int)/sizeof(char);
         char output[size];
-        sprintf(output,"%d",num);
+        sprintf(output,"%d",v);
         UART_putString(output);
-
 
 
         sendCANmsg(NODE_TARGET_2, MSG_speed,output,size+1);
