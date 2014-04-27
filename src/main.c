@@ -96,9 +96,8 @@ int main(void) {
         int v = (int)(CIRCUM/time);
     
         //int num = round(CIRCUM/dt);
-        int num = 2;
         int size = sizeof(int)/sizeof(char);
-        char output[size];
+        uint8_t output[size];
         sprintf(output,"%d",v);
         UART_putString(output);
 
@@ -118,6 +117,6 @@ int main(void) {
 }
 
 
-void handleCANmsg(uint8_t destID, uint8_t msgID, char* msg, uint8_t msgLen){
+void handleCANmsg(uint8_t destID, uint8_t msgID, uint8_t* msg, uint8_t msgLen){
 }
 

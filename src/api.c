@@ -108,7 +108,7 @@ void readMsg(void) {
 }
 
 // Sample call: sendCANmsg(NODE_watchdog,MSG_critical,data,dataLen);
-int sendCANmsg(uint8_t destID, uint8_t msgID, char msg[], uint8_t msgLength) {
+int sendCANmsg(uint8_t destID, uint8_t msgID, uint8_t msg[], uint8_t msgLength) {
     // use MOb 0 for sending and auto-increment bits in CAN page MOb register
     CANPAGE = ( _BV(AINC));
 

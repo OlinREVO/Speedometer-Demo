@@ -41,21 +41,12 @@ int main(void){
 	initCAN(NODE_HOME);
     initUART();
 
-    while(1){//just keep displaying the current velocity
-    	//if(velocity >80){
-    	   //velocity = 80;
-    	//}
-        /*UART_putString("HELLO\n");*/
-        //High is |=~_BV..\.
-        //Low is &=
-        //PORTC |= _BV(PC1);
-
+    while(1){
         ssDisplay(velocity);
- 
-    }
+     }
 }
 
-void handleCANmsg(uint8_t destID, uint8_t msgID, char* msg, uint8_t msgLen){
+void handleCANmsg(uint8_t destID, uint8_t msgID, uint8_t* msg, uint8_t msgLen){
     sscanf(msg, "%d", &velocity);
     UART_putString("Hi\n");
     UART_putString(msg);
