@@ -40,6 +40,7 @@ int main(void){
 
 	initCAN(NODE_HOME);
     initUART();
+    char output[size];
 
     while(1){
         ssDisplay(velocity);
@@ -47,7 +48,9 @@ int main(void){
 }
 
 void handleCANmsg(uint8_t destID, uint8_t msgID, uint8_t* msg, uint8_t msgLen){
-    sscanf(msg, "%d", &velocity);
-    UART_putString("Hi\n");
-    UART_putString(msg);
+    velocity = msg[0];
+    int size = sizeof(int)/sizeof(char);
+    sscanf(velocity, "%d", output);
+    UART_putString("\nHi\n");
+    UART_putString(output);
 }

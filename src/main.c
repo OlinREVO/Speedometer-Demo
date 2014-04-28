@@ -47,6 +47,7 @@ ISR(INT1_vect) {
         int size = sizeof(uint8_t)/sizeof(char);
         char output[size];
         sprintf(output,"%d",TCNT1);
+        UART_putString("\ntime\n");
         UART_putString(output);
 
     dt = TCNT1;
@@ -58,7 +59,9 @@ ISR(INT1_vect) {
 
 
 int main(void) {
-
+    int size = sizeof(int)/sizeof(char);
+    char output[size];
+    uint8_t can[1];
     //Initialize Times to all zeros 
     for (i = 0; i < SIZE; i++) {
       Times[i] = 0;
@@ -90,19 +93,15 @@ int main(void) {
     initUART();
     /* Loop */
     while (1) {
-        UART_putString("Hello\n");
         _delay_ms(100);
 
-        int v = (int)(CIRCUM/time);
-    
-        //int num = round(CIRCUM/dt);
-        int size = sizeof(int)/sizeof(char);
-        uint8_t output[size];
+        uint8_t v = (int)(CIRCUM/time);
+
         sprintf(output,"%d",v);
+        UART_putString("\nvelocity\n");
         UART_putString(output);
-
-
-        sendCANmsg(NODE_TARGET_2, MSG_speed,output,size+1);
+        can[0] = v;
+        sendCANmsg(NODE_TARGET_2, MSG_speed,can,1);
 
         /*ADCSRA |=  _BV(ADSC);
             while(bit_is_set(ADCSRA, ADSC));
