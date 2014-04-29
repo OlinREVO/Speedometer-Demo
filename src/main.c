@@ -50,11 +50,9 @@ ISR(INT1_vect) {
         UART_putString("\ntime\n");
         UART_putString(output);
 
-    dt = TCNT1;
+    times[i] = TCNT1;
+    i = (i+1)%SIZE;
     TCNT1 = 0;
-
-    //velocity = velocity + TIMESCALAR*CIRCUM/(dt * F_IO)/2.0;
-    time = dt*TIMESCALAR/F_IO;
 }
 
 
@@ -95,7 +93,13 @@ int main(void) {
     while (1) {
         _delay_ms(100);
 
-        uint8_t v = (int)(CIRCUM/time);
+        int j = 0;
+        int time = 0;
+        for(j = 0; j < SIZE; j++){
+            time = time+times[j];
+        }
+
+        uint8_t v = (int)(CIRCUM*SIZE/time);
 
         sprintf(output,"%d",v);
         UART_putString("\nvelocity\n");
