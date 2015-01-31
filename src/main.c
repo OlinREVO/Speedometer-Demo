@@ -46,12 +46,14 @@ ISR(INT1_vect) {
 
 int main(void) {
 
-    uint8_t msg[1];
-    initUART();
+    uint8_t speed_msg[1];
+    uint8_t charge_msg[2];
 
     int j = 0;
     int time = 0;
-    char output[size];
+    uint16_t charge = 0;
+    uint16_t voltage = 0;
+
     //Initialize Times to all zeros 
     for (i = 0; i < SIZE; i++) {
       times[i] = 0;
@@ -70,19 +72,49 @@ int main(void) {
     EIMSK |= _BV(INT1);
     /* All set up, start listening for interrupts */
 
+    //enable ADC
+    ADCSRA |= _BV(ADEN) | _BV(ADPS2) | _BV(ADPS1) | _BV(ADPS0);
+    //Enable internal reference voltage
+    ADCSRB &= _BV(AREFEN);
+    //Set internal reference voltage as AVcc
+    ADMUX |= _BV(REFS0);
+
+    int msgs =0;
+
     /* Loop */
     while (1) {
         _delay_ms(100);
+
+        //Reset the ADMUX channel select bits (lowest 5)
+        ADMUX &= ~(0x1F);
+        //the low 4 bits of ADMUX select the ADC channel
+        ADMUX |= 0x02;
+        //Wait for ADC reading
+        ADCSRA |=  _BV(ADSC);
+
+        while(bit_is_set(ADCSRA, ADSC)){
+            //ADC is a macro to combine ADCL and ADCH
+            voltage = ADC;
+        }
+
+        uint16_t current = voltage/shunt_res;
+
+        charge += (current*.1);//100 ms
+
+        charge_msg[0] = charge & 0xFF;
+        charge_msg[1] = charge >> 8;
 
         for(j = 0; j < SIZE; j++){
             time = time+times[j];
         }
 
         uint8_t v = (int)(CIRCUM*SIZE/(time/F_IO/TIMESCALAR));
-        v= time/DT;
-        msg[0] = v;
+        speed_msg[0] = msgs;
 
-        sendCANmsg(NODE_speedometer, MSG_speed,(uint8_t*)msg,1);
+        msgs++;
+
+        sendCANmsg(NODE_speedometer, MSG_speed,(uint8_t*)speed_msg,1);
+        sendCANmsg(NODE_watchdog, MSG_data_other, charge_msg, 2);
 
     }
 }
