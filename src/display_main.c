@@ -18,7 +18,7 @@ int NODE_HOME = NODE_speedometer;
 
 int velocity = 0;
 
-uint8_t lightArray[7] = {PD0, PD1, PD2, PD3, PD4, PD5, PD6,PD7};
+uint8_t lightArray[8] = {PD0, PD1, PD2, PD3, PD4, PD5, PD6,PD7};
 
 int main(void){
 
@@ -52,11 +52,13 @@ void handleCANmsg(uint8_t destID, uint8_t msgID, uint8_t* msg, uint8_t msgLen){
     velocity = msg[0];
 }
 
-void lightDisplay(int velocity){
+void lightDisplay(int value){
     int i = 0;
+    PORTD = 0x0;
 
     for(i = 0;i < velocity/10;i++){
-        PORTD |= (1<<lightDisplay[i]);
+        PORTD |= (1 << i);
     }
+
 
 }

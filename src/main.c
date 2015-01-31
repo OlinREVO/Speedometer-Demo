@@ -30,6 +30,7 @@ volatile float dt = 1;
 float time = 0;
 float times[SIZE];
 float velocity = 10;
+int ints;
 
 int shunt_res= 5000;
 
@@ -41,6 +42,7 @@ ISR(INT1_vect) {
     times[i] = TCNT1;
     i = (i+1)%SIZE;
     TCNT1 = 0;
+
 }
 
 
@@ -79,12 +81,12 @@ int main(void) {
     //Set internal reference voltage as AVcc
     ADMUX |= _BV(REFS0);
 
-    int msgs =0;
 
     /* Loop */
     while (1) {
         _delay_ms(100);
 
+        time = 0;
         //Reset the ADMUX channel select bits (lowest 5)
         ADMUX &= ~(0x1F);
         //the low 4 bits of ADMUX select the ADC channel
@@ -108,10 +110,8 @@ int main(void) {
             time = time+times[j];
         }
 
-        uint8_t v = (int)(CIRCUM*SIZE/(time/F_IO/TIMESCALAR));
-        speed_msg[0] = msgs;
-
-        msgs++;
+        uint8_t v = (int)(CIRCUM*SIZE/(time/TIMESCALAR));
+        speed_msg[0] = v;
 
         sendCANmsg(NODE_speedometer, MSG_speed,(uint8_t*)speed_msg,1);
         sendCANmsg(NODE_watchdog, MSG_data_other, charge_msg, 2);
